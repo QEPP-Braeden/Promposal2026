@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>A Question for You</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { min-height:100vh; background:#f0f4e8; font-family:'Georgia',serif; overflow-x:hidden; }
+
+.leaf { position:fixed; pointer-events:none; opacity:0; animation:leaffall linear infinite; z-index:0; }
+@keyframes leaffall {
+  0%   { opacity:0; transform:translateY(-20px) rotate(0deg) translateX(0); }
+  10%  { opacity:0.6; }
+  90%  { opacity:0.35; }
+  100% { opacity:0; transform:translateY(108vh) rotate(560deg) translateX(35px); }
+}
+
+#main-screen, #celebration-screen {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding:0 0 70px; position:relative; z-index:1;
+}
+#celebration-screen { display:none; }
+
+.card {
+  background:rgba(255,253,248,0.94); border-radius:28px; padding:30px 26px 34px;
+  max-width:360px; width:calc(100% - 36px); margin:0 auto; text-align:center;
+  box-shadow:0 4px 26px rgba(60,80,30,0.13); border:1px solid rgba(100,130,60,0.18);
+  position:relative; z-index:2;
+}
+.eyebrow { font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#6a8040; margin-bottom:10px; }
+.question { font-size:28px; color:#243010; line-height:1.35; margin-bottom:6px; font-style:italic; }
+.question span { color:#4a7020; }
+.sub { font-size:14px; color:#708050; font-style:italic; margin-bottom:6px; line-height:1.65; }
+
+/* Cow warning message */
+#cow-warning {
+  font-size:12px; font-style:italic; min-height:18px; margin-bottom:18px;
+  transition:color 0.4s;
+  color:#708050;
+}
+
+.btn-area { display:flex; gap:14px; justify-content:center; align-items:center; min-height:56px; position:relative; }
+
+.btn-yes {
+  background:#3e5e1e; color:#f5f0e4; border:none; border-radius:50px;
+  padding:14px 34px; font-size:17px; font-family:'Georgia',serif; font-style:italic;
+  cursor:pointer; transition:transform 0.12s, background 0.12s; flex-shrink:0; position:relative; z-index:10;
+}
+.btn-yes:active { transform:scale(0.96); background:#2e4a14; }
+
+.btn-no {
+  background:#f5f0e4; color:#3e5e1e; border:1.5px solid #90b060;
+  border-radius:50px; padding:14px 34px; font-size:17px;
+  font-family:'Georgia',serif; font-style:italic; cursor:pointer;
+  position:fixed; z-index:200; white-space:nowrap;
+  will-change:left,top;
+}
+
+.vine { width:100%; height:14px; margin:12px 0 16px; opacity:0.55; }
+
+.cel-card {
+  background:rgba(255,253,248,0.96); border-radius:28px; padding:32px 26px 38px;
+  max-width:360px; width:calc(100% - 36px); margin:0 auto; text-align:center;
+  box-shadow:0 4px 28px rgba(60,80,30,0.15); border:1px solid rgba(100,130,60,0.2);
+}
+.cel-title { font-size:32px; color:#243010; font-style:italic; margin:14px 0 8px; }
+.cel-sub { font-size:15px; color:#608040; font-style:italic; line-height:1.7; margin-bottom:18px; }
+.cel-note {
+  background:rgba(74,112,32,0.07); border-radius:16px; padding:15px 18px;
+  font-size:14px; color:#344018; font-style:italic; line-height:1.8;
+  border:1px solid rgba(74,112,32,0.14);
+}
+@keyframes hb { 0%,100%{transform:scale(1)}14%{transform:scale(1.16)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)} }
+.cel-cow { animation:hb 1.7s ease-in-out infinite; display:block; margin:0 auto; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+.cow-shake { animation:shake 0.35s ease; }
+@keyframes rage-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+</style>
+</head>
+<body>
+<div id="leaf-container"></div>
+
+<!-- ======= MAIN SCREEN ======= -->
+<div id="main-screen">
+
+<!-- Botanical header with highland cow (static SVG structure, face swapped by JS) -->
+<svg id="header-svg" width="100%" viewBox="0 0 400 195" xmlns="http://www.w3.org/2000/svg" style="max-width:420px;display:block;margin:0 auto -6px;">
+  <ellipse cx="200" cy="215" rx="270" ry="95" fill="#c5d898" opacity="0.42"/>
+  <g stroke="#4e7228" fill="none" stroke-linecap="round">
+    <path d="M48 185 Q46 155 44 128 Q42 106 48 82" stroke-width="2.2"/>
+    <path d="M48 185 Q53 158 56 135 Q59 114 54 94" stroke-width="1.6"/>
+    <path d="M68 188 Q66 160 64 135 Q62 113 67 91" stroke-width="2"/>
+    <path d="M68 188 Q73 162 76 138 Q79 116 74 96" stroke-width="1.5"/>
+    <path d="M332 185 Q334 155 336 128 Q338 106 332 82" stroke-width="2.2"/>
+    <path d="M332 185 Q327 158 324 135 Q321 114 326 94" stroke-width="1.6"/>
+    <path d="M352 188 Q354 160 356 135 Q358 113 353 91" stroke-width="2"/>
+    <path d="M352 188 Q347 162 344 138 Q341 116 346 96" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(56,82)">
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f8f4e0" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f2ecd8" transform="rotate(45)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f8f4e0" transform="rotate(90)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f2ecd8" transform="rotate(135)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f8f4e0" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f2ecd8" transform="rotate(225)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f8f4e0" transform="rotate(270)"/>
+    <ellipse cx="0" cy="-15" rx="4.5" ry="8.5" fill="#f2ecd8" transform="rotate(315)"/>
+    <circle cx="0" cy="0" r="7" fill="#e0bb22"/>
+  </g>
+  <g transform="translate(42,112)">
+    <ellipse cx="0" cy="-11" rx="4" ry="7.5" fill="#e06888" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-11" rx="4" ry="7.5" fill="#c85070" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-11" rx="4" ry="7.5" fill="#e06888" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-11" rx="4" ry="7.5" fill="#c85070" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-11" rx="4" ry="7.5" fill="#e06888" transform="rotate(288)"/>
+    <circle cx="0" cy="0" r="5.5" fill="#f09858"/>
+  </g>
+  <g transform="translate(344,80)">
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f8f4e0" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f2ecd8" transform="rotate(40)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f8f4e0" transform="rotate(80)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f2ecd8" transform="rotate(120)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f8f4e0" transform="rotate(160)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f2ecd8" transform="rotate(200)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f8f4e0" transform="rotate(240)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f2ecd8" transform="rotate(280)"/>
+    <ellipse cx="0" cy="-16" rx="5" ry="9" fill="#f8f4e0" transform="rotate(320)"/>
+    <circle cx="0" cy="0" r="8" fill="#e0bb22"/>
+  </g>
+  <g transform="translate(362,108)">
+    <path d="M0,-16 Q-7,-9 -8,2 Q-6,10 0,12 Q6,10 8,2 Q7,-9 0,-16Z" fill="#9060c0" opacity="0.82"/>
+    <path d="M0,-16 Q3,-10 2,-3" stroke="#6040a0" stroke-width="1" fill="none"/>
+  </g>
+  <path d="M75 152 Q88 136 83 120 Q73 134 75 152Z" fill="#5a8428" opacity="0.78"/>
+  <path d="M44 142 Q32 126 38 114 Q49 126 44 142Z" fill="#4e7820" opacity="0.7"/>
+  <path d="M325 150 Q312 134 317 118 Q328 132 325 150Z" fill="#5a8428" opacity="0.78"/>
+  <path d="M358 142 Q370 126 364 114 Q353 126 358 142Z" fill="#4e7820" opacity="0.7"/>
+
+  <!-- HIGHLAND COW — dynamic parts use id -->
+  <g transform="translate(135,22)">
+    <!-- Body — color changes with anger -->
+    <ellipse id="cow-body" cx="65" cy="98" rx="52" ry="36" fill="#c4882e"/>
+    <path d="M26 110 Q32 121 40 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M38 115 Q44 126 53 127" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M84 114 Q90 125 98 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M73 116 Q79 127 88 125" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <!-- Head — color changes -->
+    <ellipse id="cow-head" cx="24" cy="80" rx="23" ry="20" fill="#b47228"/>
+    <!-- Fringe -->
+    <path d="M4 66 Q9 54 13 60 Q16 51 20 57 Q23 47 27 54 Q31 46 36 53 Q40 48 45 56" stroke="#cfa038" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M7 70 Q6 61 9 63" stroke="#c09030" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- FACE GROUP — swapped by JS -->
+    <g id="cow-face">
+      <!-- Stage 0: calm neutral face (default) -->
+      <circle cx="17" cy="76" r="3.5" fill="#302008"/>
+      <circle cx="16" cy="75" r="1.2" fill="#f0e0a8" opacity="0.55"/>
+      <!-- Neutral mouth — slight content line -->
+      <path d="M10 87 Q17 90 24 87" stroke="#906840" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- Snout -->
+    <ellipse id="cow-snout" cx="7" cy="87" rx="10" ry="7.5" fill="#d09c58"/>
+    <ellipse cx="5" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
+    <ellipse cx="10" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
+    <!-- Horns -->
+    <path d="M10 64 Q2 52 -5 47" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M32 61 Q36 50 34 43" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <!-- Ears -->
+    <ellipse cx="2" cy="72" rx="5" ry="8.5" fill="#bc8030" transform="rotate(-22,2,72)"/>
+    <ellipse cx="2" cy="72" rx="3" ry="5.5" fill="#dca858" transform="rotate(-22,2,72)"/>
+    <!-- Legs -->
+    <rect x="32" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
+    <rect x="48" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
+    <rect x="74" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
+    <rect x="90" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
+    <ellipse cx="38" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="54" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="80" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="96" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <!-- Tail -->
+    <path d="M117 96 Q130 90 128 103 Q126 112 118 109" stroke="#bc8030" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M118 109 Q125 117 120 122 Q115 124 112 119" stroke="#bc8030" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Flower being sniffed -->
+    <path d="M-10 92 L-10 145" stroke="#4e7228" stroke-width="2" fill="none"/>
+    <path d="M-10 118 Q-18 110 -15 100" stroke="#4e7228" stroke-width="1.2" fill="none"/>
+    <g id="cow-flower" transform="translate(-10,92)">
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(60)"/>
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(120)"/>
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(240)"/>
+      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(300)"/>
+      <circle cx="0" cy="0" r="5.5" fill="#e0b820"/>
+    </g>
+    <!-- Anger steam puffs (hidden by default) -->
+    <g id="cow-steam" opacity="0">
+      <circle cx="-8" cy="55" r="5" fill="#ddd" opacity="0.7"/>
+      <circle cx="-2" cy="47" r="4" fill="#ccc" opacity="0.6"/>
+      <circle cx="38" cy="50" r="5" fill="#ddd" opacity="0.7"/>
+      <circle cx="44" cy="42" r="4" fill="#ccc" opacity="0.6"/>
+    </g>
+    <!-- Cartoon anger veins (hidden by default) -->
+    <g id="cow-veins" opacity="0">
+      <path d="M30 58 Q34 54 32 50 Q28 54 30 58Z" fill="#cc2020"/>
+      <path d="M32 50 Q36 46 34 42 Q30 46 32 50Z" fill="#cc2020"/>
+    </g>
+    <!-- Red rage aura (hidden by default) -->
+    <ellipse id="cow-aura" cx="24" cy="80" rx="28" ry="24" fill="none" stroke="#cc0000" stroke-width="0" opacity="0"/>
+  </g>
+
+  <path d="M0 175 Q100 168 200 171 Q300 174 400 168" stroke="#5a8428" stroke-width="2" fill="none" opacity="0.45"/>
+</svg>
+
+<div class="card">
+  <p class="eyebrow">for you</p>
+  <svg class="vine" viewBox="0 0 280 14" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 7 Q40 2 70 7 Q100 12 130 7 Q160 2 190 7 Q220 12 250 7 Q265 4 270 7" stroke="#80a848" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <circle cx="70" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+    <circle cx="140" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+    <circle cx="210" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+    <path d="M70 7 Q72 3 75 1" stroke="#80a848" stroke-width="1" fill="none"/>
+    <path d="M140 7 Q138 3 135 1" stroke="#80a848" stroke-width="1" fill="none"/>
+    <path d="M210 7 Q212 3 215 1" stroke="#80a848" stroke-width="1" fill="none"/>
+  </svg>
+  <p class="question">Will you go to<br><span>Prom</span> with me?</p>
+  <p class="sub">Three years of adventures together —<br>let's have one more magical night.</p>
+  <p id="cow-warning">&nbsp;</p>
+  <div class="btn-area" id="btn-area">
+    <button class="btn-yes" onclick="celebrate()">Yes, always</button>
+    <div id="no-placeholder" style="width:136px;height:52px;flex-shrink:0;"></div>
+  </div>
+  <svg class="vine" viewBox="0 0 280 14" xmlns="http://www.w3.org/2000/svg" style="margin-top:14px;margin-bottom:0;">
+    <path d="M10 7 Q40 12 70 7 Q100 2 130 7 Q160 12 190 7 Q220 2 250 7 Q265 10 270 7" stroke="#80a848" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M70 7 Q72 11 75 13" stroke="#80a848" stroke-width="1" fill="none"/>
+    <path d="M140 7 Q138 11 135 13" stroke="#80a848" stroke-width="1" fill="none"/>
+    <path d="M210 7 Q212 11 215 13" stroke="#80a848" stroke-width="1" fill="none"/>
+  </svg>
+</div>
+
+<svg width="100%" viewBox="0 0 400 75" xmlns="http://www.w3.org/2000/svg" style="max-width:420px;display:block;margin:-2px auto 0;">
+  <g stroke="#4e7228" fill="none" stroke-linecap="round">
+    <path d="M0 75 Q32 58 44 38 Q48 52 54 47 Q58 36 64 32" stroke-width="1.8"/>
+    <path d="M400 75 Q368 58 356 40 Q352 54 346 49 Q342 38 336 34" stroke-width="1.8"/>
+  </g>
+  <path d="M44 38 Q54 28 49 19 Q41 29 44 38Z" fill="#5a8428" opacity="0.75"/>
+  <path d="M64 32 Q73 21 68 12 Q60 23 64 32Z" fill="#4e7820" opacity="0.7"/>
+  <path d="M356 40 Q346 28 351 19 Q359 30 356 40Z" fill="#5a8428" opacity="0.75"/>
+  <path d="M336 34 Q327 22 332 13 Q340 24 336 34Z" fill="#4e7820" opacity="0.7"/>
+  <g transform="translate(56,20)">
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#dca8b8" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#c890a0" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#dca8b8" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#c890a0" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#dca8b8" transform="rotate(288)"/>
+    <circle cx="0" cy="0" r="4.5" fill="#e8c020"/>
+  </g>
+  <g transform="translate(342,22)">
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#f5f0d0" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#ede8c0" transform="rotate(60)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#f5f0d0" transform="rotate(120)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#ede8c0" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#f5f0d0" transform="rotate(240)"/>
+    <ellipse cx="0" cy="-9" rx="3.5" ry="6.5" fill="#ede8c0" transform="rotate(300)"/>
+    <circle cx="0" cy="0" r="4.5" fill="#e0b820"/>
+  </g>
+</svg>
+</div>
+
+<!-- ======= CELEBRATION SCREEN ======= -->
+<div id="celebration-screen">
+<svg width="100%" viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg" style="max-width:420px;display:block;margin:0 auto -6px;">
+  <ellipse cx="200" cy="175" rx="270" ry="90" fill="#c5d898" opacity="0.38"/>
+  <g stroke="#4e7228" fill="none" stroke-linecap="round">
+    <path d="M38 140 Q36 108 34 80 Q32 58 38 34" stroke-width="2.2"/>
+    <path d="M56 140 Q59 112 63 86 Q66 64 60 42" stroke-width="1.7"/>
+    <path d="M342 140 Q344 108 347 80 Q350 58 344 34" stroke-width="2.2"/>
+    <path d="M360 140 Q357 112 354 86 Q351 64 356 42" stroke-width="1.7"/>
+  </g>
+  <g transform="translate(44,34)">
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#e0a8b8" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#c88898" transform="rotate(45)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#e0a8b8" transform="rotate(90)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#c88898" transform="rotate(135)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#e0a8b8" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#c88898" transform="rotate(225)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#e0a8b8" transform="rotate(270)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#c88898" transform="rotate(315)"/>
+    <circle cx="0" cy="0" r="9" fill="#e8c020"/>
+  </g>
+  <g transform="translate(348,32)">
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#f5f0d8" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#ede8c8" transform="rotate(40)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#f5f0d8" transform="rotate(80)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#ede8c8" transform="rotate(120)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#f5f0d8" transform="rotate(160)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#ede8c8" transform="rotate(200)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#f5f0d8" transform="rotate(240)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#ede8c8" transform="rotate(280)"/>
+    <ellipse cx="0" cy="-18" rx="6" ry="11" fill="#f5f0d8" transform="rotate(320)"/>
+    <circle cx="0" cy="0" r="9" fill="#e0b820"/>
+  </g>
+  <path d="M50 98 Q62 82 57 64 Q47 78 50 98Z" fill="#5a8428" opacity="0.8"/>
+  <path d="M346 96 Q334 80 338 62 Q348 76 346 96Z" fill="#5a8428" opacity="0.8"/>
+</svg>
+<div class="cel-card">
+  <svg class="cel-cow" width="170" height="130" viewBox="0 0 170 140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="96" cy="85" rx="55" ry="37" fill="#c4882e"/>
+    <path d="M54 96 Q60 108 69 110" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M67 102 Q73 114 82 115" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M114 100 Q120 112 130 110" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="44" cy="70" rx="24" ry="21" fill="#b47228"/>
+    <path d="M22 54 Q27 42 31 48 Q34 39 38 45 Q41 35 46 42 Q50 34 55 41 Q59 36 65 44" stroke="#cfa038" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+    <path d="M30 64 Q34 60 38 64" stroke="#302008" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M28 76 Q36 83 45 78" stroke="#905030" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="26" cy="79" rx="11" ry="8" fill="#d09c58"/>
+    <ellipse cx="23" cy="81" rx="2.5" ry="2" fill="#906840" opacity="0.6"/>
+    <ellipse cx="29" cy="81" rx="2.5" ry="2" fill="#906840" opacity="0.6"/>
+    <path d="M28 52 Q19 40 13 35" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M54 49 Q58 37 56 30" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <g transform="translate(13,35)">
+      <ellipse cx="0" cy="-7" rx="3.2" ry="5.5" fill="#e05888" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-7" rx="3.2" ry="5.5" fill="#c84070" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-7" rx="3.2" ry="5.5" fill="#e05888" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-7" rx="3.2" ry="5.5" fill="#c84070" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-7" rx="3.2" ry="5.5" fill="#e05888" transform="rotate(288)"/>
+      <circle cx="0" cy="0" r="4.2" fill="#f0d030"/>
+    </g>
+    <ellipse cx="20" cy="62" rx="5" ry="9" fill="#bc8030" transform="rotate(-22,20,62)"/>
+    <ellipse cx="20" cy="62" rx="3" ry="5.5" fill="#dca858" transform="rotate(-22,20,62)"/>
+    <rect x="62" y="114" width="11" height="22" rx="4" fill="#aa7220"/>
+    <rect x="79" y="116" width="11" height="20" rx="4" fill="#aa7220"/>
+    <rect x="107" y="112" width="11" height="24" rx="4" fill="#aa7220" transform="rotate(-4,107,112)"/>
+    <rect x="124" y="114" width="11" height="22" rx="4" fill="#aa7220"/>
+    <ellipse cx="68" cy="136" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="85" cy="136" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="113" cy="136" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <ellipse cx="130" cy="136" rx="6.5" ry="3.5" fill="#3a2410"/>
+    <path d="M151 82 Q166 74 164 88 Q161 99 152 96" stroke="#bc8030" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M152 96 Q160 105 154 111 Q148 113 145 107" stroke="#bc8030" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  </svg>
+  <p class="cel-title">She said yes!</p>
+  <p class="cel-sub">You've made me the happiest person.<br>I can't wait to dance with you all night.</p>
+  <svg viewBox="0 0 280 14" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:16px;opacity:0.55;">
+    <path d="M10 7 Q40 2 70 7 Q100 12 130 7 Q160 2 190 7 Q220 12 250 7 Q265 4 270 7" stroke="#80a848" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <circle cx="70" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+    <circle cx="140" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+    <circle cx="210" cy="7" r="2.5" fill="#98c058" opacity="0.75"/>
+  </svg>
+  <div class="cel-note">
+    Three years of loving you,<br>
+    and still counting every beautiful moment.<br>
+    Prom is just the beginning.
+  </div>
+</div>
+</div>
+
+<button class="btn-no" id="no-btn">No, never</button>
+
+<script>
+// ── Leaf particles ─────────────────────────────────────────────
+const leafSVGs = [
+  '<svg width="16" height="20" viewBox="0 0 16 20"><path d="M8 19 Q1 13 2 6 Q8 0 14 6 Q15 13 8 19Z" fill="#5a8030" opacity="0.65"/><path d="M8 19 L8 7" stroke="#3e6018" stroke-width="0.9" fill="none"/></svg>',
+  '<svg width="14" height="17" viewBox="0 0 14 17"><path d="M7 16 Q1 10 2 5 Q7 0 12 5 Q13 10 7 16Z" fill="#7aa040" opacity="0.55"/></svg>',
+  '<svg width="18" height="12" viewBox="0 0 18 12"><ellipse cx="9" cy="6" rx="8" ry="5" fill="#a0b870" opacity="0.5" transform="rotate(-15,9,6)"/></svg>',
+];
+const lc = document.getElementById('leaf-container');
+function spawnLeaf() {
+  const d = document.createElement('div');
+  d.className = 'leaf';
+  d.innerHTML = leafSVGs[Math.floor(Math.random() * leafSVGs.length)];
+  d.style.left = (Math.random() * 100) + 'vw';
+  const dur = 8 + Math.random() * 9;
+  d.style.animationDuration = dur + 's';
+  d.style.animationDelay = (Math.random() * -10) + 's';
+  lc.appendChild(d);
+  setTimeout(() => d.remove(), (dur + 12) * 1000);
+}
+for (let i = 0; i < 10; i++) spawnLeaf();
+setInterval(spawnLeaf, 950);
+
+// ── Anger stages ───────────────────────────────────────────────
+const stages = [
+  // 0: calm
+  {
+    bodyColor:'#c4882e', headColor:'#b47228', snoutColor:'#d09c58',
+    warning: '\u00a0',
+    face: `<circle cx="17" cy="76" r="3.5" fill="#302008"/>
+           <circle cx="16" cy="75" r="1.2" fill="#f0e0a8" opacity="0.55"/>
+           <path d="M10 87 Q17 90 24 87" stroke="#906840" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+    steam:0, veins:0, auraW:0, bgTint:null
+  },
+  // 1: slightly annoyed (1 dodge)
+  {
+    bodyColor:'#c4882e', headColor:'#b47228', snoutColor:'#d09c58',
+    warning: 'Hamish the cow noticed that...',
+    face: `<circle cx="17" cy="76" r="3.5" fill="#302008"/>
+           <circle cx="16" cy="75" r="1.2" fill="#f0e0a8" opacity="0.55"/>
+           <path d="M11 62 Q13 59 17 60" stroke="#604020" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+           <path d="M11 88 Q17 85 23 88" stroke="#906840" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+    steam:0, veins:0, auraW:0, bgTint:null
+  },
+  // 2: grumpy (3 dodges)
+  {
+    bodyColor:'#c4882e', headColor:'#b47228', snoutColor:'#d09c58',
+    warning: 'Hamish is giving you a look. 🌿',
+    face: `<circle cx="17" cy="76" r="3.8" fill="#241808"/>
+           <path d="M10 62 Q14 58 18 60" stroke="#503010" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+           <path d="M13 88 Q17 86 21 88" stroke="#704020" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+    steam:0, veins:0, auraW:0, bgTint:null
+  },
+  // 3: annoyed brow (5 dodges)
+  {
+    bodyColor:'#ca8830', headColor:'#b47228', snoutColor:'#d09c58',
+    warning: 'Hamish has begun stomping his hooves.',
+    face: `<circle cx="17" cy="77" r="4" fill="#1e1206"/>
+           <path d="M9 61 Q14 57 19 60" stroke="#402000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+           <path d="M14 89 Q17 87 20 89" stroke="#602010" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    steam:0.5, veins:0, auraW:0, bgTint:null
+  },
+  // 4: visibly angry (7 dodges)
+  {
+    bodyColor:'#d08028', headColor:'#b46020', snoutColor:'#d08848',
+    warning: 'Hamish is VERY displeased with you right now.',
+    face: `<circle cx="17" cy="78" r="4.5" fill="#1a0e04"/>
+           <path d="M8 61 Q13 55 19 59" stroke="#380800" stroke-width="3" fill="none" stroke-linecap="round"/>
+           <path d="M15 90 Q17 88 19 90" stroke="#801010" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    steam:0.8, veins:0.6, auraW:0, bgTint:null
+  },
+  // 5: furious (10 dodges)
+  {
+    bodyColor:'#d06018', headColor:'#b04818', snoutColor:'#cc7840',
+    warning: 'Hamish is red-faced. He has begun to charge.',
+    face: `<circle cx="17" cy="78" r="5" fill="#150a02"/>
+           <path d="M7 60 Q12 53 20 58" stroke="#300000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+           <path d="M15 91 Q17 89 20 91" stroke="#cc0000" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+    steam:1, veins:0.9, auraW:3, bgTint:'rgba(200,0,0,0.04)'
+  },
+  // 6: FULL CARTOON RAGE (13+ dodges)
+  {
+    bodyColor:'#c83010', headColor:'#cc2020', snoutColor:'#e05030',
+    warning: '🔴 HAMISH HAS LOST IT. JUST SAY YES. PLEASE.',
+    face: `<circle cx="17" cy="78" r="5.5" fill="#fff" stroke="#000" stroke-width="1.2"/>
+           <circle cx="17" cy="78" r="3" fill="#cc0000"/>
+           <path d="M6 58 Q12 50 21 57" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round"/>
+           <path d="M16 92 Q17 89 18 92" stroke="#ff0000" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    steam:1, veins:1, auraW:5, bgTint:'rgba(200,0,0,0.09)'
+  },
+];
+
+let noCount = 0;
+let currentStage = 0;
+
+function getStage(n) {
+  if (n === 0) return 0;
+  if (n === 1) return 1;
+  if (n <= 3) return 2;
+  if (n <= 5) return 3;
+  if (n <= 7) return 4;
+  if (n <= 10) return 5;
+  if (n <= 13) return 6;
+  return 6;
+}
+
+function updateCow(stage) {
+  const s = stages[stage];
+  document.getElementById('cow-body').setAttribute('fill', s.bodyColor);
+  document.getElementById('cow-head').setAttribute('fill', s.headColor);
+  document.getElementById('cow-snout').setAttribute('fill', s.snoutColor);
+  document.getElementById('cow-face').innerHTML = s.face;
+  document.getElementById('cow-steam').setAttribute('opacity', s.steam);
+  document.getElementById('cow-veins').setAttribute('opacity', s.veins);
+  const aura = document.getElementById('cow-aura');
+  aura.setAttribute('stroke-width', s.auraW);
+  aura.setAttribute('opacity', s.auraW > 0 ? '0.6' : '0');
+  document.getElementById('cow-warning').textContent = s.warning;
+  document.getElementById('cow-warning').style.color =
+    stage >= 6 ? '#cc0000' : stage >= 4 ? '#b03010' : stage >= 2 ? '#8a6020' : '#708050';
+
+  // Shake the SVG
+  const svg = document.getElementById('header-svg');
+  svg.classList.remove('cow-shake');
+  void svg.offsetWidth;
+  if (stage >= 2) svg.classList.add('cow-shake');
+
+  // Background tint
+  document.body.style.background = s.bgTint
+    ? `linear-gradient(180deg, ${s.bgTint} 0%, #f0f4e8 30%)`
+    : '#f0f4e8';
+
+  // Stage 6: pulse the SVG
+  if (stage >= 6) {
+    svg.style.animation = 'rage-pulse 0.6s ease-in-out infinite';
+  } else {
+    svg.style.animation = '';
+  }
+}
+
+// ── No button: anti-corner flee ────────────────────────────────
+const noBtn = document.getElementById('no-btn');
+let noBtnX = 0, noBtnY = 0; // tracked position
+
+function placeNoBtn() {
+  const ph = document.getElementById('no-placeholder');
+  if (!ph) return;
+  const r = ph.getBoundingClientRect();
+  noBtnX = r.left;
+  noBtnY = r.top;
+  noBtn.style.left = noBtnX + 'px';
+  noBtn.style.top  = noBtnY + 'px';
+  noBtn.style.width  = r.width  + 'px';
+  noBtn.style.height = r.height + 'px';
+  noBtn.style.transition = 'none';
+}
+window.addEventListener('load', placeNoBtn);
+window.addEventListener('resize', placeNoBtn);
+
+function fleeFrom(cx, cy) {
+  noCount++;
+  const newStage = getStage(noCount);
+  if (newStage !== currentStage) {
+    currentStage = newStage;
+    updateCow(currentStage);
+  }
+
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const m = 16;
+  const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
+  const bx = noBtnX + w / 2, by = noBtnY + h / 2;
+
+  let dx = bx - cx, dy = by - cy;
+  const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+  // Larger flee distance = more panicked
+  const fleeDist = 160 + Math.min(noCount * 8, 80);
+  dx = (dx/dist) * fleeDist;
+  dy = (dy/dist) * fleeDist;
+
+  let nx = noBtnX + dx;
+  let ny = noBtnY + dy;
+
+  // Clamp to safe zone
+  nx = Math.max(m, Math.min(vw - w - m, nx));
+  ny = Math.max(m, Math.min(vh - h - m, ny));
+
+  // ANTI-CORNER: if button is near a corner, push it toward center
+  const cornerThresh = 80;
+  const nearLeft  = nx < cornerThresh;
+  const nearRight = nx > vw - w - cornerThresh;
+  const nearTop   = ny < cornerThresh;
+  const nearBot   = ny > vh - h - cornerThresh;
+
+  if ((nearLeft || nearRight) && (nearTop || nearBot)) {
+    // We're in a corner — kick toward the center
+    const centerX = (vw - w) / 2;
+    const centerY = (vh - h) / 2;
+    nx = nx + (centerX - nx) * 0.6;
+    ny = ny + (centerY - ny) * 0.6;
+    // Add a perpendicular nudge so it doesn't just slide along the wall
+    const angle = Math.atan2(centerY - ny, centerX - nx) + (Math.random() > 0.5 ? 0.8 : -0.8);
+    nx += Math.cos(angle) * 60;
+    ny += Math.sin(angle) * 60;
+    nx = Math.max(m, Math.min(vw - w - m, nx));
+    ny = Math.max(m, Math.min(vh - h - m, ny));
+  }
+
+  noBtnX = nx;
+  noBtnY = ny;
+
+  noBtn.style.transition = 'left 0.28s cubic-bezier(0.2,1.5,0.4,1), top 0.28s cubic-bezier(0.2,1.5,0.4,1)';
+  noBtn.style.left = noBtnX + 'px';
+  noBtn.style.top  = noBtnY + 'px';
+
+  // Stage 6: button shakes too
+  if (currentStage >= 6) {
+    noBtn.style.background = '#ff2020';
+    noBtn.style.color = '#fff';
+    noBtn.style.borderColor = '#cc0000';
+  } else if (currentStage >= 4) {
+    noBtn.style.background = '#ffe0d0';
+    noBtn.style.color = '#8a2010';
+    noBtn.style.borderColor = '#cc6030';
+  } else {
+    noBtn.style.background = '';
+    noBtn.style.color = '';
+    noBtn.style.borderColor = '';
+  }
+}
+
+noBtn.addEventListener('touchstart', e => { e.preventDefault(); fleeFrom(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+noBtn.addEventListener('touchmove',  e => { e.preventDefault(); fleeFrom(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+noBtn.addEventListener('mouseover',  e => fleeFrom(e.clientX, e.clientY));
+noBtn.addEventListener('mousemove',  e => fleeFrom(e.clientX, e.clientY));
+noBtn.addEventListener('click',      e => { e.preventDefault(); fleeFrom(e.clientX, e.clientY); });
+
+function celebrate() {
+  document.getElementById('main-screen').style.display = 'none';
+  noBtn.style.display = 'none';
+  document.getElementById('celebration-screen').style.display = 'flex';
+  for (let i = 0; i < 28; i++) setTimeout(spawnLeaf, i * 55);
+}
+</script>
+</body>
+</html>
