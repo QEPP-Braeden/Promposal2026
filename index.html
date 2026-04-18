@@ -8,6 +8,22 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 body { min-height:100vh; background:#f0f4e8; font-family:'Georgia',serif; overflow-x:hidden; }
+#cow-root {
+  transform-origin: 80px 120px;
+}
+
+@keyframes rearUp {
+  0%   { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-5px) rotate(18deg); }
+}
+
+.cow-standing {
+  animation: rearUp 0.35s forwards;
+}
+
+.cow-standing {
+  animation: rearUp 0.35s forwards;
+}
 
 .leaf { position:fixed; pointer-events:none; opacity:0; animation:leaffall linear infinite; z-index:0; }
 @keyframes leaffall {
@@ -75,6 +91,11 @@ body { min-height:100vh; background:#f0f4e8; font-family:'Georgia',serif; overfl
 }
 @keyframes hb { 0%,100%{transform:scale(1)}14%{transform:scale(1.16)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)} }
 .cel-cow { animation:hb 1.7s ease-in-out infinite; display:block; margin:0 auto; }
+@keyframes sad-sway { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+.cow-sad g#cow-face { animation:sad-sway 1.2s ease-in-out infinite; transform-origin:center top; }
+.cow-tear { opacity:0; transform-origin:16px 72px; }
+.cow-tear.visible { opacity:1; animation:tear-fall 1.4s ease-in-out infinite; }
+@keyframes tear-fall { 0%{transform:translate(0,0) scale(1)} 35%{transform:translate(0,10px) scale(0.98)} 100%{transform:translate(0,18px) scale(0.96); opacity:0.2;} }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
 .cow-shake { animation:shake 0.35s ease; }
 @keyframes rage-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
@@ -141,75 +162,84 @@ body { min-height:100vh; background:#f0f4e8; font-family:'Georgia',serif; overfl
 
   <!-- HIGHLAND COW — dynamic parts use id -->
   <g transform="translate(135,22)">
-    <!-- Body — color changes with anger -->
-    <ellipse id="cow-body" cx="65" cy="98" rx="52" ry="36" fill="#c4882e"/>
-    <path d="M26 110 Q32 121 40 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <path d="M38 115 Q44 126 53 127" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <path d="M84 114 Q90 125 98 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <path d="M73 116 Q79 127 88 125" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    <!-- Head — color changes -->
-    <ellipse id="cow-head" cx="24" cy="80" rx="23" ry="20" fill="#b47228"/>
-    <!-- Fringe -->
-    <path d="M4 66 Q9 54 13 60 Q16 51 20 57 Q23 47 27 54 Q31 46 36 53 Q40 48 45 56" stroke="#cfa038" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M7 70 Q6 61 9 63" stroke="#c09030" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <g id="cow-root">
+        <!-- Body — color changes with anger -->
+        <ellipse id="cow-body" cx="65" cy="98" rx="52" ry="36" fill="#c4882e"/>
+        <path d="M26 110 Q32 121 40 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M38 115 Q44 126 53 127" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M84 114 Q90 125 98 123" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M73 116 Q79 127 88 125" stroke="#9e6220" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <!-- Head — color changes -->
+        <ellipse id="cow-head" cx="24" cy="80" rx="23" ry="20" fill="#b47228"/>
+        <!-- Fringe -->
+        <path d="M4 66 Q9 54 13 60 Q16 51 20 57 Q23 47 27 54 Q31 46 36 53 Q40 48 45 56" stroke="#cfa038" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M7 70 Q6 61 9 63" stroke="#c09030" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-    <!-- FACE GROUP — swapped by JS -->
-    <g id="cow-face">
-      <!-- Stage 0: calm neutral face (default) -->
-      <circle cx="17" cy="76" r="3.5" fill="#302008"/>
-      <circle cx="16" cy="75" r="1.2" fill="#f0e0a8" opacity="0.55"/>
-      <!-- Neutral mouth — slight content line -->
-      <path d="M10 87 Q17 90 24 87" stroke="#906840" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    </g>
+        <!-- FACE GROUP — swapped by JS -->
+        <g id="cow-face">
+        <!-- Stage 0: calm neutral face (default) -->
+        <circle cx="17" cy="76" r="3.5" fill="#302008"/>
+        <circle cx="16" cy="75" r="1.2" fill="#f0e0a8" opacity="0.55"/>
+        <!-- Neutral mouth — slight content line -->
+        <path d="M10 87 Q17 90 24 87" stroke="#906840" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </g>
+        <g id="cow-tear" class="cow-tear">
+        <path d="M16 76 Q14 84 16 92 Q18 84 16 76Z" fill="#8cc1eb" opacity="0.95"/>
+        <ellipse cx="16" cy="86" rx="1.4" ry="2.8" fill="#d7eefb" opacity="0.9"/>
+        </g>
 
-    <!-- Snout -->
-    <ellipse id="cow-snout" cx="7" cy="87" rx="10" ry="7.5" fill="#d09c58"/>
-    <ellipse cx="5" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
-    <ellipse cx="10" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
-    <!-- Horns -->
-    <path d="M10 64 Q2 52 -5 47" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    <path d="M32 61 Q36 50 34 43" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    <!-- Ears -->
-    <ellipse cx="2" cy="72" rx="5" ry="8.5" fill="#bc8030" transform="rotate(-22,2,72)"/>
-    <ellipse cx="2" cy="72" rx="3" ry="5.5" fill="#dca858" transform="rotate(-22,2,72)"/>
-    <!-- Legs -->
-    <rect x="32" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
-    <rect x="48" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
-    <rect x="74" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
-    <rect x="90" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
-    <ellipse cx="38" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
-    <ellipse cx="54" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
-    <ellipse cx="80" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
-    <ellipse cx="96" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
-    <!-- Tail -->
-    <path d="M117 96 Q130 90 128 103 Q126 112 118 109" stroke="#bc8030" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-    <path d="M118 109 Q125 117 120 122 Q115 124 112 119" stroke="#bc8030" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <!-- Flower being sniffed -->
-    <path d="M-10 92 L-10 145" stroke="#4e7228" stroke-width="2" fill="none"/>
-    <path d="M-10 118 Q-18 110 -15 100" stroke="#4e7228" stroke-width="1.2" fill="none"/>
-    <g id="cow-flower" transform="translate(-10,92)">
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(0)"/>
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(60)"/>
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(120)"/>
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(180)"/>
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(240)"/>
-      <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(300)"/>
-      <circle cx="0" cy="0" r="5.5" fill="#e0b820"/>
+        <!-- Snout -->
+        <ellipse id="cow-snout" cx="7" cy="87" rx="10" ry="7.5" fill="#d09c58"/>
+        <ellipse cx="5" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
+        <ellipse cx="10" cy="89" rx="2.5" ry="2" fill="#906840" opacity="0.65"/>
+        <!-- Horns -->
+        <path d="M10 64 Q2 52 -5 47" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M32 61 Q36 50 34 43" stroke="#d4bc80" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <!-- Ears -->
+        <ellipse cx="2" cy="72" rx="5" ry="8.5" fill="#bc8030" transform="rotate(-22,2,72)"/>
+        <ellipse cx="2" cy="72" rx="3" ry="5.5" fill="#dca858" transform="rotate(-22,2,72)"/>
+        <!-- Legs -->
+        <g id="cow-legs">
+            <rect x="32" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
+            <rect x="48" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
+            <rect x="74" y="126" width="11" height="22" rx="4" fill="#aa7220"/>
+            <rect x="90" y="128" width="11" height="20" rx="4" fill="#aa7220"/>
+
+            <ellipse cx="38" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+            <ellipse cx="54" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+            <ellipse cx="80" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+            <ellipse cx="96" cy="148" rx="6.5" ry="3.5" fill="#3a2410"/>
+        </g>
+        <!-- Tail -->
+        <path d="M117 96 Q130 90 128 103 Q126 112 118 109" stroke="#bc8030" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M118 109 Q125 117 120 122 Q115 124 112 119" stroke="#bc8030" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Flower being sniffed -->
+        <path d="M-10 92 L-10 145" stroke="#4e7228" stroke-width="2" fill="none"/>
+        <path d="M-10 118 Q-18 110 -15 100" stroke="#4e7228" stroke-width="1.2" fill="none"/>
+        <g id="cow-flower" transform="translate(-10,92)">
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(60)"/>
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(120)"/>
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f8f2d8" transform="rotate(240)"/>
+        <ellipse cx="0" cy="-10" rx="3.5" ry="7" fill="#f0ead0" transform="rotate(300)"/>
+        <circle cx="0" cy="0" r="5.5" fill="#e0b820"/>
+        </g>
+        <!-- Anger steam puffs (hidden by default) -->
+        <g id="cow-steam" opacity="0">
+        <circle cx="-8" cy="55" r="5" fill="#ddd" opacity="0.7"/>
+        <circle cx="-2" cy="47" r="4" fill="#ccc" opacity="0.6"/>
+        <circle cx="38" cy="50" r="5" fill="#ddd" opacity="0.7"/>
+        <circle cx="44" cy="42" r="4" fill="#ccc" opacity="0.6"/>
+        </g>
+        <!-- Cartoon anger veins (hidden by default) -->
+        <g id="cow-veins" opacity="0">
+        <path d="M30 58 Q34 54 32 50 Q28 54 30 58Z" fill="#cc2020"/>
+        <path d="M32 50 Q36 46 34 42 Q30 46 32 50Z" fill="#cc2020"/>
+        </g>
+        <!-- Red rage aura (hidden by default) -->
+        <ellipse id="cow-aura" cx="24" cy="80" rx="28" ry="24" fill="none" stroke="#cc0000" stroke-width="0" opacity="0"/>
     </g>
-    <!-- Anger steam puffs (hidden by default) -->
-    <g id="cow-steam" opacity="0">
-      <circle cx="-8" cy="55" r="5" fill="#ddd" opacity="0.7"/>
-      <circle cx="-2" cy="47" r="4" fill="#ccc" opacity="0.6"/>
-      <circle cx="38" cy="50" r="5" fill="#ddd" opacity="0.7"/>
-      <circle cx="44" cy="42" r="4" fill="#ccc" opacity="0.6"/>
-    </g>
-    <!-- Cartoon anger veins (hidden by default) -->
-    <g id="cow-veins" opacity="0">
-      <path d="M30 58 Q34 54 32 50 Q28 54 30 58Z" fill="#cc2020"/>
-      <path d="M32 50 Q36 46 34 42 Q30 46 32 50Z" fill="#cc2020"/>
-    </g>
-    <!-- Red rage aura (hidden by default) -->
-    <ellipse id="cow-aura" cx="24" cy="80" rx="28" ry="24" fill="none" stroke="#cc0000" stroke-width="0" opacity="0"/>
   </g>
 
   <path d="M0 175 Q100 168 200 171 Q300 174 400 168" stroke="#5a8428" stroke-width="2" fill="none" opacity="0.45"/>
@@ -430,24 +460,26 @@ const stages = [
            <path d="M15 90 Q17 88 19 90" stroke="#801010" stroke-width="2" fill="none" stroke-linecap="round"/>`,
     steam:0.8, veins:0.6, auraW:0, bgTint:null
   },
-  // 5: furious (10 dodges)
+  // 5: sad (10 dodges)
   {
-    bodyColor:'#d06018', headColor:'#b04818', snoutColor:'#cc7840',
-    warning: 'Hamish is red-faced. He has begun to charge.',
-    face: `<circle cx="17" cy="78" r="5" fill="#150a02"/>
-           <path d="M7 60 Q12 53 20 58" stroke="#300000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-           <path d="M15 91 Q17 89 20 91" stroke="#cc0000" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
-    steam:1, veins:0.9, auraW:3, bgTint:'rgba(200,0,0,0.04)'
+    bodyColor:'#c4882e', headColor:'#a47034', snoutColor:'#d09c58',
+    warning: 'Hamish looks sad now. He is missing your answer.',
+    face: `<circle cx="17" cy="76" r="3.5" fill="#241808"/>
+           <path d="M11 68 Q14 72 17 68" stroke="#403020" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+           <path d="M13 88 Q17 86 21 88" stroke="#704020" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+           <path d="M18 80 Q20 87 18 93" stroke="#5f7eb8" stroke-width="2" fill="none" opacity="0.8"/>`,
+    steam:0, veins:0, auraW:0, bgTint:'rgba(120,150,200,0.08)'
   },
-  // 6: FULL CARTOON RAGE (13+ dodges)
+  // 6: very sad (13+ dodges)
   {
-    bodyColor:'#c83010', headColor:'#cc2020', snoutColor:'#e05030',
-    warning: '🔴 HAMISH HAS LOST IT. JUST SAY YES. PLEASE.',
-    face: `<circle cx="17" cy="78" r="5.5" fill="#fff" stroke="#000" stroke-width="1.2"/>
-           <circle cx="17" cy="78" r="3" fill="#cc0000"/>
-           <path d="M6 58 Q12 50 21 57" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round"/>
-           <path d="M16 92 Q17 89 18 92" stroke="#ff0000" stroke-width="3" fill="none" stroke-linecap="round"/>`,
-    steam:1, veins:1, auraW:5, bgTint:'rgba(200,0,0,0.09)'
+    bodyColor:'#b07028', headColor:'#9d5a24', snoutColor:'#cf8a48',
+    warning: 'Hamish is really sad. He needs a yes to cheer up.',
+    face: `<circle cx="17" cy="76" r="3.5" fill="#241808"/>
+           <path d="M12 69 Q17 74 22 69" stroke="#403020" stroke-width="2" fill="none" stroke-linecap="round"/>
+           <path d="M14 89 Q17 87 20 89" stroke="#704020" stroke-width="2" fill="none" stroke-linecap="round"/>
+           <path d="M16 80 Q18 87 17 93" stroke="#5f7eb8" stroke-width="2" fill="none" opacity="0.9"/>
+           <path d="M20 82 Q22 89 21 95" stroke="#5f7eb8" stroke-width="1.6" fill="none" opacity="0.8"/>`,
+    steam:0, veins:0, auraW:0, bgTint:'rgba(120,150,200,0.12)'
   },
 ];
 
@@ -461,7 +493,7 @@ function getStage(n) {
   if (n <= 5) return 3;
   if (n <= 7) return 4;
   if (n <= 10) return 5;
-  if (n <= 13) return 6;
+  if (n <= 29) return 6;
   return 6;
 }
 
@@ -478,25 +510,26 @@ function updateCow(stage) {
   aura.setAttribute('opacity', s.auraW > 0 ? '0.6' : '0');
   document.getElementById('cow-warning').textContent = s.warning;
   document.getElementById('cow-warning').style.color =
-    stage >= 6 ? '#cc0000' : stage >= 4 ? '#b03010' : stage >= 2 ? '#8a6020' : '#708050';
+    stage >= 5 ? '#3d5a8a' : stage >= 4 ? '#b03010' : stage >= 2 ? '#8a6020' : '#708050';
+  document.getElementById('cow-tear').classList.toggle('visible', stage >= 5);
 
-  // Shake the SVG
+  // Animate the cow
   const svg = document.getElementById('header-svg');
-  svg.classList.remove('cow-shake');
+  svg.classList.remove('cow-shake', 'cow-sad');
   void svg.offsetWidth;
-  if (stage >= 2) svg.classList.add('cow-shake');
+  if (stage >= 2 && stage < 5) {
+    svg.classList.add('cow-shake');
+  }
+  if (stage >= 5) {
+    svg.classList.add('cow-sad');
+  }
 
   // Background tint
   document.body.style.background = s.bgTint
     ? `linear-gradient(180deg, ${s.bgTint} 0%, #f0f4e8 30%)`
     : '#f0f4e8';
 
-  // Stage 6: pulse the SVG
-  if (stage >= 6) {
-    svg.style.animation = 'rage-pulse 0.6s ease-in-out infinite';
-  } else {
-    svg.style.animation = '';
-  }
+  svg.style.animation = '';
 }
 
 // ── No button: anti-corner flee ────────────────────────────────
@@ -520,6 +553,10 @@ window.addEventListener('resize', placeNoBtn);
 
 function fleeFrom(cx, cy) {
   noCount++;
+  if (noCount >= 10) {
+    window.location = 'interrogation.html';
+    return;
+  }
   const newStage = getStage(noCount);
   if (newStage !== currentStage) {
     currentStage = newStage;
@@ -534,7 +571,8 @@ function fleeFrom(cx, cy) {
   let dx = bx - cx, dy = by - cy;
   const dist = Math.sqrt(dx*dx + dy*dy) || 1;
   // Larger flee distance = more panicked
-  const fleeDist = 160 + Math.min(noCount * 8, 80);
+  const progress = noCount / 10; // 0 → 1
+  const fleeDist = 140 + progress * 140; // smoother scaling
   dx = (dx/dist) * fleeDist;
   dy = (dy/dist) * fleeDist;
 
@@ -573,12 +611,8 @@ function fleeFrom(cx, cy) {
   noBtn.style.left = noBtnX + 'px';
   noBtn.style.top  = noBtnY + 'px';
 
-  // Stage 6: button shakes too
-  if (currentStage >= 6) {
-    noBtn.style.background = '#ff2020';
-    noBtn.style.color = '#fff';
-    noBtn.style.borderColor = '#cc0000';
-  } else if (currentStage >= 4) {
+  // Stage 6: button changes for annoyance, but stage 6 is sad now
+  if (currentStage >= 4 && currentStage < 6) {
     noBtn.style.background = '#ffe0d0';
     noBtn.style.color = '#8a2010';
     noBtn.style.borderColor = '#cc6030';
@@ -590,9 +624,7 @@ function fleeFrom(cx, cy) {
 }
 
 noBtn.addEventListener('touchstart', e => { e.preventDefault(); fleeFrom(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
-noBtn.addEventListener('touchmove',  e => { e.preventDefault(); fleeFrom(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
 noBtn.addEventListener('mouseover',  e => fleeFrom(e.clientX, e.clientY));
-noBtn.addEventListener('mousemove',  e => fleeFrom(e.clientX, e.clientY));
 noBtn.addEventListener('click',      e => { e.preventDefault(); fleeFrom(e.clientX, e.clientY); });
 
 function celebrate() {

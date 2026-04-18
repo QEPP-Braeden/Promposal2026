@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will you go to prom with me?</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background:#000;
+  color:white;
+  font-family:'Georgia',serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* DARK ATMOSPHERE */
+.card {
+  text-align:center;
+}
+
+/* EYES GLOW */
+.eyes {
+  filter: drop-shadow(0 0 20px red)
+          drop-shadow(0 0 40px rgba(255,0,0,0.8));
+  animation: pulse 2s infinite;
+}
+
+/* SUBTLE BREATHING */
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity:0.9; }
+  50% { transform: scale(1.08); opacity:1; }
+}
+
+/* FADE-IN EFFECT */
+.fade {
+  animation: fadeIn 2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+
+button {
+  margin-top:30px;
+  padding:14px 40px;
+  border:none;
+  border-radius:999px;
+  background:#bb2b2b;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card fade">
+  <h1 style="margin-bottom:20px;">Will you go to prom with me?</h1>
+
+  <!-- ONLY EYES VISIBLE -->
+  <svg width="300" height="200">
+
+    <!-- darkness overlay -->
+    <rect width="100%" height="100%" fill="black"/>
+
+    <!-- LEFT EYE -->
+    <g class="eyes">
+      <ellipse cx="110" cy="100" rx="12" ry="6" fill="#2c0707"/>
+      <ellipse cx="110" cy="100" rx="6" ry="3" fill="#ff2a2a"/>
+    </g>
+
+    <!-- RIGHT EYE -->
+    <g class="eyes">
+      <ellipse cx="190" cy="100" rx="12" ry="6" fill="#2c0707"/>
+      <ellipse cx="190" cy="100" rx="6" ry="3" fill="#ff2a2a"/>
+    </g>
+
+    <!-- VERY FAINT COW SHAPE (barely visible) -->
+    <ellipse cx="150" cy="120" rx="80" ry="40"
+             fill="black" opacity="0.2"/>
+  </svg>
+
+  <p style="margin-top:20px; opacity:0.7;">
+    Hamish is watching...
+  </p>
+
+  <button onclick="finish()">Yes</button>
+</div>
+
+<script>
+function finish(){
+  document.body.innerHTML = "<h1 style='color:white;text-align:center;'>Good choice.</h1>";
+}
+</script>
+
+</body>
+</html>
