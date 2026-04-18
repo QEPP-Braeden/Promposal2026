@@ -524,6 +524,13 @@ function updateCow(stage) {
     svg.classList.add('cow-sad');
   }
 
+  // Rear up animation for stage 4
+  const cowRoot = document.getElementById('cow-root');
+  cowRoot.classList.remove('cow-standing');
+  if (stage === 4) {
+    cowRoot.classList.add('cow-standing');
+  }
+
   // Background tint
   document.body.style.background = s.bgTint
     ? `linear-gradient(180deg, ${s.bgTint} 0%, #f0f4e8 30%)`
