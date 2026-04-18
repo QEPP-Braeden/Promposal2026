@@ -564,7 +564,7 @@ function fleeFrom(cx, cy) {
   }
 
   const vw = window.innerWidth, vh = window.innerHeight;
-  const m = 16;
+  const m = 50; // increased margin to keep away from text
   const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
   const bx = noBtnX + w / 2, by = noBtnY + h / 2;
 
@@ -572,7 +572,7 @@ function fleeFrom(cx, cy) {
   const dist = Math.sqrt(dx*dx + dy*dy) || 1;
   // Larger flee distance = more panicked
   const progress = noCount / 10; // 0 → 1
-  const fleeDist = 140 + progress * 140; // smoother scaling
+  const fleeDist = 200 + progress * 200; // smoother scaling, farther away
   dx = (dx/dist) * fleeDist;
   dy = (dy/dist) * fleeDist;
 
